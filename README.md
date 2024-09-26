@@ -1,2 +1,2 @@
 # Neat-Namer
-Smart file renaming tool that neatens up your file names
+Smart file renaming tool to neaten up your file names
