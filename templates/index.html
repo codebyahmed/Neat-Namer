@@ -3,9 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neat Namer</title>
+    <title>Neat Renamer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
 </head>
-<body>
-    <h1>Neat Namer</h1>
+<body class="d-flex flex-column min-vh-100 justify-content-center align-items-center">
+    <div id="homePage" class="text-center">
+        <img src="{{ url_for('static', filename='img/dev.ahmediqbal.pixtract.svg') }}" alt="Neat Namer Logo" class="mb-4">
+        <h1 class="mb-2">Neat Renamer</h1>
+        <p class="mb-4">Clean Up and Simplify Your File Names</p>
+        <input type="file" id="fileInput" multiple style="display: none;">
+        <button id="addFilesBtn" class="btn btn-primary">Add files...</button>
+    </div>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
