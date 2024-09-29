@@ -11,8 +11,35 @@
         <img src="{{ url_for('static', filename='img/dev.ahmediqbal.pixtract.svg') }}" alt="Neat Namer Logo" class="mb-4">
         <h1 class="mb-2">Neat Renamer</h1>
         <p class="mb-4">Clean Up and Simplify Your File Names</p>
-        <input type="file" id="fileInput" multiple style="display: none;">
+        <input type="file" id="fileInputAtHome" multiple style="display: none;">
         <button id="addFilesBtn" class="btn btn-primary">Add files...</button>
+    </div>
+    <div id="tablePage" class="container" style="display: none;">
+        <div class="row mb-3">
+            <div class="col-8">
+                <input type="file" id="fileInputAtTable" multiple style="display: none;">
+                <button id="addMoreFilesBtn" class="btn btn-primary me-2">Add</button>
+                <button id="clearFilesBtn" class="btn btn-danger">Clear</button>
+            </div>
+            <div class="col-4 text-end">
+                <button id="renameFilesBtn" class="btn btn-success">Rename</button>
+                <button id="saveFilesBtn" class="btn btn-success" style="display: none;">Save</button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 table-container">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th id="oldNameHeader">Filename</th>
+                            <th id="newNameHeadere" style="display: none;">New Filename</th>
+                        </tr>
+                    </thead>
+                    <tbody id="filesTableBody"></tbody>
+                </table>
+            </div>
+        </div>
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
