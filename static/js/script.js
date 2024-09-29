@@ -77,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     clearFilesBtn.addEventListener('click', async () => {
         homePage.style.display = 'block';
         tablePage.style.display = 'none';
+        newNameHeader.style.display = 'none';
 
         addMoreFilesBtn.classList.remove('disabled');
         addMoreFilesBtn.disabled = false;
@@ -99,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renameFilesBtn.addEventListener('click', async () => {
         const response = await fetch('/rename_files', {
-            method: 'POST'
+            method: 'PUT'
         });
         if (!response.ok) {
             console.error('Error renaming files');
@@ -123,9 +124,6 @@ document.addEventListener('DOMContentLoaded', () => {
         saveFilesBtn.disabled = false;
         addMoreFilesBtn.classList.add('disabled');
         renameFilesBtn.classList.add('disabled');
-
-        oldNameHeader.style.textContent = 'Old Name';
-        newNameHeader.style.textContent = 'New Name';
         newNameHeader.style.display = 'block';
     });
 });

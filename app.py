@@ -15,7 +15,7 @@ def index():
     return render_template('index.html')
 
 
-@app.route('/rename_files', methods=['POST'])
+@app.route('/rename_files', methods=['PUT'])
 def rename_files():
     global selected_files
 
