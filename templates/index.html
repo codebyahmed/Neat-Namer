@@ -5,8 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neat Renamer</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        #homePage, #tablePage {
+            width: 100%;
+            max-width: 800px;
+        }
+        #tablePage {
+            display: flex;
+            flex-direction: column;
+            height: 80vh;
+        }
+        .button-row {
+            flex: 0 0 auto;
+            margin-bottom: 20px;
+        }
+        .table-container {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            max-height: 70vh;
+        }
+        .table {
+            margin-bottom: 0;
+        }
+    </style>
 </head>
-<body class="d-flex flex-column min-vh-100 justify-content-center align-items-center">
+<body>
     <div id="homePage" class="text-center">
         <img src="{{ url_for('static', filename='img/dev.ahmediqbal.pixtract.svg') }}" alt="Neat Namer Logo" class="mb-4">
         <h1 class="mb-2">Neat Renamer</h1>
@@ -15,30 +47,28 @@
         <button id="addFilesBtn" class="btn btn-primary">Add files...</button>
     </div>
     <div id="tablePage" class="container" style="display: none;">
-        <div class="row mb-3">
+        <div class="button-row row">
             <div class="col-8">
                 <input type="file" id="fileInputAtTable" multiple style="display: none;">
                 <button id="addMoreFilesBtn" class="btn btn-primary me-2">Add</button>
                 <button id="clearFilesBtn" class="btn btn-danger">Clear</button>
             </div>
             <div class="col-4 text-end">
-                <button id="renameFilesBtn" class="btn btn-success">Rename</button>
-                <button id="saveFilesBtn" class="btn btn-success" style="display: none;">Save</button>
+                <button id="renameFilesBtn" class="btn btn-success me-2">Rename</button>
+                <button id="saveFilesBtn" class="btn btn-success" disabled>Save</button>
             </div>
         </div>
-        <div class="row">
-            <div class="col-12 table-container">
-                <table class="table table-sm">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th id="oldNameHeader">Filename</th>
-                            <th id="newNameHeadere" style="display: none;">New Filename</th>
-                        </tr>
-                    </thead>
-                    <tbody id="filesTableBody"></tbody>
-                </table>
-            </div>
+        <div class="table-container">
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th id="oldNameHeader">Old Filename</th>
+                        <th id="newNameHeader" style="display: none;">New Filename</th>
+                    </tr>
+                </thead>
+                <tbody id="filesTableBody"></tbody>
+            </table>
         </div>
     </div>
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
