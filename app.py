@@ -1,7 +1,6 @@
 import os
-from flask import Flask, jsonify, render_template, request
-from utils import generate_new_name, zip_up
-
+from flask import Flask, jsonify, render_template, request, send_file
+from utils import generate_new_name, zip_up, clear_directory
 
 app = Flask(__name__)
 
@@ -77,7 +76,8 @@ def clear_selected_files():
 
 @app.route('/create_zip', methods=['POST'])
 def create_zip():
-    
+    global renamed_files
+
     if not renamed_files:
         return jsonify({"Message" : "No files to zip"}), 400
 
@@ -85,12 +85,15 @@ def create_zip():
     
     zip_file_path = zip_up(renamed_file_paths, TEMP_FILES_DIR)
 
-    
-    # Return the path to the created zip file
-    return jsonify({"File_Path": zip_file_path}), 200
+    return send_file(
+        zip_file_path,
+        as_attachment=True,
+        download_name='renamed_files.zip',
+        mimetype='application/zip'
+    )
 
 
 if __name__ == '__main__':
     TEMP_FILES_DIR = os.path.join(app.root_path, TEMP_FILES_DIR)
-    os.makedirs(TEMP_FILES_DIR, exist_ok=True)
+    clear_directory(TEMP_FILES_DIR)
     app.run(debug=True)

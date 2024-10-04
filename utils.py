@@ -4,10 +4,7 @@ import zipfile
 from openai import OpenAI
 from dotenv import load_dotenv
 
-
 load_dotenv()
-
-
 client = OpenAI()
 
 
@@ -76,10 +73,18 @@ def zip_up(renamed_files: list, zip_path: str) -> str:
     
     zip_file_name = "renamed_images.zip"
     zip_file_path = os.path.join(zip_path, zip_file_name)
-    
+    if os.path.exists(zip_file_path):
+        os.remove(zip_file_path)
 
     with zipfile.ZipFile(zip_file_path, 'w') as zipf:
         for file in renamed_files:
             zipf.write(file, os.path.basename(file)) 
     
     return zip_file_path
+
+
+def clear_directory(directory):
+    """Clears a given directory. If directory does not exist then creates it."""
+    if os.path.exists(directory):
+        shutil.rmtree(directory)
+    os.makedirs(directory, exist_ok=True)

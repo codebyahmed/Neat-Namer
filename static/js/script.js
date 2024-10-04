@@ -126,4 +126,38 @@ document.addEventListener('DOMContentLoaded', () => {
         renameFilesBtn.classList.add('disabled');
         newNameHeader.style.display = 'block';
     });
+
+    saveFilesBtn.addEventListener('click', async () => {
+        try {
+            const response = await fetch('/create_zip', {
+                method: 'POST'
+            });
+            
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            
+            // Get the blob from the response
+            const blob = await response.blob();
+            
+            // Create a URL for the blob
+            const downloadUrl = window.URL.createObjectURL(blob);
+            
+            // Create a temporary anchor element
+            const downloadLink = document.createElement('a');
+            downloadLink.href = downloadUrl;
+            downloadLink.download = 'renamed_files.zip';
+            
+            // Append to the document, click it, and remove it
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            // Clean up the URL object
+            window.URL.revokeObjectURL(downloadUrl);
+            
+        } catch (error) {
+            console.error('Error downloading files:', error);
+        }
+    });
 });
