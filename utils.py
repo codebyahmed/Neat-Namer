@@ -1,14 +1,14 @@
 import os
 import shutil
 import zipfile
-from openai import OpenAI
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 load_dotenv()
-client = OpenAI()
+genai.configure(api_key=os.environ['GEMINI_API_KEY'])
 
 
-def generate_new_name(original_name: str) -> str:
+def generate_new_name_from_text(original_name: str) -> str:
     """Generates a new name for a given file name using OpenAI.
 
     Args:
@@ -22,7 +22,7 @@ def generate_new_name(original_name: str) -> str:
                  Example 2: Original name: 'pikaso_texttoimage_Big-Parade-Float-With-Thanksgiving-Feasts-And-Perf' -> New name: 'Big Parade Float With Thanksgiving Feasts'
                  Example 3: Original name: 'pikaso_edit_A-Cartoon-Dragon-Playing-The-Piano-In-A-Beautiful-' -> New name: 'A Cartoon Dragon Playing The Piano In A Beautifully'"""
    
-    prompt = f""" You are provided with an original name of a file. Your task is to generate a new name for the file, using the original name. 
+    prompt = f""" You are provided with an original name of a file. {original_name} Your task is to generate a new name for the file, using the original name. 
     
     Original Name Explanation:
         1) The name is a description of the file, but it is not formatted correctly
@@ -44,18 +44,40 @@ def generate_new_name(original_name: str) -> str:
         Your output should just be the new name. 
     """
 
-    completion = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": original_name}
-        ]
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(
+        prompt
     )
-
-    new_name = completion.choices[0].message.content
     
+    new_name = response.text
     return new_name
 
+def generate_new_name_from_image(file_path: str) -> str:
+    
+    myfile = genai.upload_file(file_path)
+    
+    prompt = """You are provided with an image. Your task is to generate a new name for the image.
+    
+    Instructions:
+    
+        1) Make sure to look at the image and understand what it is about.
+        2) The new name should be descriptive and should explain the image well.
+        3) It should be in title case.
+        4) It should not have any dashes or underscores.
+        5) It should be grammatically correct.
+
+    Output:
+        Your output should just be the new name.
+    
+    """
+    
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    result = model.generate_content(
+        [myfile, "\n\n", prompt]
+    )
+    
+    new_name = result.text
+    return new_name
 
 def zip_up(renamed_files: list, zip_path: str) -> str:
     """Zips up the selected files into a zip file.
