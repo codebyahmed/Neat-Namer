@@ -1,14 +1,14 @@
 import os
-from flask import Flask, render_template, request
-from openai import OpenAI
+from flask import Flask, jsonify, render_template, request
+from utils import generate_new_name, zip_up
+
 
 app = Flask(__name__)
-openai = OpenAI()
+
 
 TEMP_FILES_DIR = 'tmp'
 selected_files = []
 renamed_files = []
-
 
 @app.route('/')
 def index():
@@ -21,7 +21,11 @@ def rename_files():
 
     for file in selected_files:
         file_path = os.path.join(TEMP_FILES_DIR, file)
-        new_name = generate_new_name(file)
+        file_extension = file.split('.')[-1]
+        file_name = file.split('.')[0]
+        new_name = generate_new_name(file_name)
+        new_name = f"{new_name}.{file_extension}"
+        print(f"Old name: {file}, New name: {new_name}")
         new_file_path = os.path.join(TEMP_FILES_DIR, new_name)
         os.rename(file_path, new_file_path)
         renamed_files.append(new_name)
@@ -71,16 +75,19 @@ def clear_selected_files():
     return 'Selected files cleared'
 
 
-def generate_new_name(original_name: str) -> str:
-    """Generates a new name for a given file name using OpenAI.
+@app.route('/create_zip', methods=['POST'])
+def create_zip():
+    
+    if not renamed_files:
+        return jsonify({"Message" : "No files to zip"}), 400
 
-    Args:
-        original_name (str): The old name of the file.
+    renamed_file_paths = [os.path.join(TEMP_FILES_DIR, file) for file in renamed_files]
+    
+    zip_file_path = zip_up(renamed_file_paths, TEMP_FILES_DIR)
 
-    Returns:
-        str: The new name of the file.
-    """
-    return f"renamed_{original_name}"
+    
+    # Return the path to the created zip file
+    return jsonify({"File_Path": zip_file_path}), 200
 
 
 if __name__ == '__main__':
