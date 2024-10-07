@@ -1,17 +1,20 @@
 import os
+import time
 from flask import Flask, jsonify, render_template, request, send_file
 from utils import generate_new_name_from_image, generate_new_name_from_text, zip_up, clear_directory
 
 app = Flask(__name__)
 
-
 TEMP_FILES_DIR = 'tmp'
 selected_files = []
 renamed_files = []
-mode = "text"
+mode = "image"
+
 
 @app.route('/')
 def index():
+    TEMP_FILES_DIR = os.path.join(app.root_path, TEMP_FILES_DIR)
+    clear_directory(TEMP_FILES_DIR)
     return render_template('index.html')
 
 
@@ -20,24 +23,26 @@ def rename_files():
     global selected_files
 
     for file in selected_files:
+    
         file_path = os.path.join(TEMP_FILES_DIR, file)
         file_extension = file.split('.')[-1]
         file_name = file.split('.')[0]
         
-        if (mode == "text"):
+        if mode == "text":
             new_name = generate_new_name_from_text(file_name)
-        
-        elif (mode == "image"):
+                     
+        elif mode == "image":
             renamed_file_paths = os.path.join(file_path, file_path)
-            new_name = generate_new_name_from_image(renamed_file_paths)
+            new_name = generate_new_name_from_image(renamed_file_paths)      
             
         new_name = f"{new_name}.{file_extension}"
         print(f"Old name: {file}, New name: {new_name}")
         new_file_path = os.path.join(TEMP_FILES_DIR, new_name)
         os.rename(file_path, new_file_path)
         renamed_files.append(new_name)
-
+        
     return f"Files renamed: {', '.join(renamed_files)}"
+
 
 @app.route('/add_files', methods=['POST'])
 def add_files():
