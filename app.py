@@ -1,5 +1,4 @@
 import os
-import time
 from flask import Flask, jsonify, render_template, request, send_file
 from utils import generate_new_name_from_image, generate_new_name_from_text, zip_up, clear_directory
 
@@ -13,6 +12,7 @@ mode = "image"
 
 @app.route('/')
 def index():
+    global TEMP_FILES_DIR
     TEMP_FILES_DIR = os.path.join(app.root_path, TEMP_FILES_DIR)
     clear_directory(TEMP_FILES_DIR)
     return render_template('index.html')
@@ -106,6 +106,4 @@ def create_zip():
 
 
 if __name__ == '__main__':
-    TEMP_FILES_DIR = os.path.join(app.root_path, TEMP_FILES_DIR)
-    clear_directory(TEMP_FILES_DIR)
     app.run(debug=True)
