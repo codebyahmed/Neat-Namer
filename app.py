@@ -1,5 +1,6 @@
 import os
 from flask import Flask, jsonify, render_template, request, send_file
+from flaskwebgui import FlaskUI
 from utils import generate_new_name_from_image, generate_new_name_from_text, zip_up, clear_directory
 
 app = Flask(__name__)
@@ -33,9 +34,21 @@ def rename_files():
                      
         elif mode == "image":
             renamed_file_paths = os.path.join(file_path, file_path)
-            new_name = generate_new_name_from_image(renamed_file_paths)      
-            
+            new_name = generate_new_name_from_image(renamed_file_paths, file_name)
+
+        # Remove 'Spaces and Enter' from the end of new name if any
+        new_name = new_name.strip()
+        new_name = new_name.replace("\n", "")
+        new_name = new_name.replace("\r", "")
+
         new_name = f"{new_name}.{file_extension}"
+
+        # Handle duplicate filenames by appending a number to the filename
+        i = 1
+        while new_name in renamed_files:
+            new_name = f"{file_name}_{i}.{file_extension}"
+            i += 1
+        
         print(f"Old name: {file}, New name: {new_name}")
         new_file_path = os.path.join(TEMP_FILES_DIR, new_name)
         os.rename(file_path, new_file_path)
@@ -106,4 +119,5 @@ def create_zip():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    #app.run(debug=True)
+    FlaskUI(app=app, server="flask", width=800, height=600).run()
