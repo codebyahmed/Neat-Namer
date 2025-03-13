@@ -1,4 +1,4 @@
-# Neat-Namer
+# Neatnamer
 
 ![Neat Namer](static/img/home-image.png)
 
@@ -49,31 +49,6 @@ For quick and easy setup, download the preinstalled binaries directly from the G
    ```bash
    python app.py
    ```
-
-## Usage
-
-1. **Launch the application**
-   - The application will open in a desktop window
-
-2. **Verify your API key**
-   - Enter your Google Gemini API key in the provided field
-   - Click "Verify" to validate and save your key
-
-3. **Add files**
-   - Click "Add files..." to select files for renaming
-   - Optionally provide custom instructions for how you want your files renamed
-
-4. **Select renaming mode**
-   - Check "Image Mode" for image-specific naming (analyzes image content)
-   - Keep unchecked for standard text-based renaming
-
-5. **Process files**
-   - Click "Rename" to begin the AI-powered renaming process
-   - The progress bar will show completion status
-
-6. **Review and save**
-   - Review the old and new filenames in the table
-   - Click "Save" to download a zip file with all renamed files
 
 ## Custom Instructions
 
