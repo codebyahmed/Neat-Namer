@@ -1,8 +1,8 @@
 # Neatnamer
 
-![Neat Namer](static/img/home-image.png)
-
 A smart file renaming tool that uses AI to transform messy and inconsistent filenames into clean, organized, and meaningful names. Neat-Namer helps you maintain a tidy file system with minimal effort.
+
+![Neat Namer](static/img/home-image.png)
 
 ## Features
 
