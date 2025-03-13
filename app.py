@@ -1,6 +1,7 @@
 import os
 import threading
 import time
+import shelve
 from flask import Flask, jsonify, render_template, request, send_file
 from flaskwebgui import FlaskUI
 from utils import (
@@ -8,14 +9,26 @@ from utils import (
     generate_new_name_from_text,
     zip_up,
     clear_directory,
+    verify_gemini_api_key,
+    configure_gemini_api,
 )
+import appdirs 
 
 app = Flask(__name__)
 
 # Configuration
 TEMP_FILES_DIR = "tmp"
+
+# Get the appropriate user data directory for this application
+USER_DATA_DIR = appdirs.user_data_dir("neatnamer", "AhmedIqbal")
+# Ensure the directory exists
+os.makedirs(USER_DATA_DIR, exist_ok=True)
+# Store the API key database in the user data directory
+API_KEY_DB = os.path.join(USER_DATA_DIR, "neatnamer_key")
+
 app.config.update(
     TEMP_FILES_DIR=TEMP_FILES_DIR,
+    API_KEY_DB=API_KEY_DB,
 )
 
 
@@ -30,6 +43,7 @@ class RenameState:
         self.total = 0
         self.completed = False
         self.stop_requested = False
+        self.api_key = None
 
     def reset_progress(self):
         self.in_progress = False
@@ -46,14 +60,32 @@ class RenameState:
         self.renamed_files = []
         self.completed = False
 
+    def set_api_key(self, key):
+        self.api_key = key
+
 
 # Initialize state
 state = RenameState()
+
+# Load API key from shelve on startup
+def load_api_key():
+    try:
+        with shelve.open(app.config["API_KEY_DB"]) as db:
+            if "gemini_api_key" in db:
+                api_key = db["gemini_api_key"]
+                state.set_api_key(api_key)
+                configure_gemini_api(api_key)
+                return api_key
+    except Exception as e:
+        print(f"Error loading API key: {e}")
+    return None
 
 
 @app.route("/")
 def index():
     temp_dir = os.path.join(app.root_path, app.config["TEMP_FILES_DIR"])
+    #print temp directory for debugging
+    print(f"Temporary files directory: {temp_dir}")
     clear_directory(temp_dir)
     return render_template("index.html")
 
@@ -83,6 +115,10 @@ def start_rename():
     if state.in_progress:
         return jsonify({"error": "Renaming already in progress"}), 400
 
+    # Check if API key is valid before proceeding
+    if not state.api_key:
+        return jsonify({"error": "No valid API key. Please verify your API key first."}), 400
+
     state.reset_progress()
     state.in_progress = True
     state.total = len(state.selected_files)
@@ -102,7 +138,6 @@ def process_rename_files():
         for file in state.selected_files:
             # Check if stop was requested
             if state.stop_requested:
-                revert_renamed_files(temp_files, temp_dir)
                 break
 
             file_path = os.path.join(temp_dir, file)
@@ -141,19 +176,6 @@ def process_rename_files():
         # If stopped, clear the renamed files list
         if not state.completed:
             state.renamed_files = []
-
-
-def revert_renamed_files(temp_files, temp_dir):
-    """Revert already renamed files if stopping in the middle of process"""
-    for temp_file in temp_files:
-        try:
-            index = temp_files.index(temp_file)
-            new_path = os.path.join(temp_dir, temp_file)
-            original_path = os.path.join(temp_dir, state.selected_files[index])
-            if os.path.exists(new_path) and new_path != original_path:
-                os.rename(new_path, original_path)
-        except Exception as e:
-            print(f"Error reverting file {temp_file}: {e}")
 
 
 def clean_filename(name):
@@ -266,6 +288,42 @@ def set_mode():
     return jsonify({"error": "Invalid mode"}), 400
 
 
+@app.route("/verify_api_key", methods=["POST"])
+def verify_api_key():
+    data = request.json
+    if "api_key" not in data or not data["api_key"]:
+        return jsonify({"valid": False, "message": "No API key provided"}), 400
+    
+    api_key = data["api_key"]
+    
+    # Verify the API key
+    is_valid, message = verify_gemini_api_key(api_key)
+    
+    if is_valid:
+        # Store the key and update the application state
+        try:
+            with shelve.open(app.config["API_KEY_DB"]) as db:
+                db["gemini_api_key"] = api_key
+            
+            state.set_api_key(api_key)
+            configure_gemini_api(api_key)
+            return jsonify({"valid": True, "message": "API key verified successfully!"})
+        except Exception as e:
+            return jsonify({"valid": False, "message": f"Error storing API key: {str(e)}"}), 500
+    else:
+        return jsonify({"valid": False, "message": message})
+
+
+@app.route("/get_api_key", methods=["GET"])
+def get_api_key():
+    # Only returns whether a key exists, not the actual key
+    api_key = state.api_key
+    return jsonify({"has_key": api_key is not None})
+
+
 if __name__ == "__main__":
+    # Load API key on startup
+    load_api_key()
+    
     # Use FlaskUI for desktop application
     FlaskUI(app=app, server="flask", width=800, height=600).run()
