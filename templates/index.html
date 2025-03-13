@@ -46,7 +46,6 @@
             height: 10px;
             margin-top: 8px;
         }
-        /* Add animation for the spinner */
         @keyframes spinner-border {
             to { transform: rotate(360deg); }
         }
@@ -59,6 +58,10 @@
             border-radius: 50%;
             animation: spinner-border .75s linear infinite;
         }
+        .custom-instructions-container {
+            margin: 20px auto;
+            max-width: 500px;
+        }
     </style>
 </head>
 <body>
@@ -67,7 +70,14 @@
         <h1 class="mb-2">Neatnamer</h1>
         <p class="mb-4">Clean Up and Simplify Your File Names</p>
         <input type="file" id="fileInputAtHome" multiple style="display: none;">
-        <button id="addFilesBtn" class="btn btn-primary mb-5">Add files...</button>
+        <button id="addFilesBtn" class="btn btn-primary mb-3">Add files...</button>
+
+        <!-- Custom Instructions section -->
+        <div class="custom-instructions-container">
+            <textarea class="form-control" id="customInstructions" rows="3" placeholder="(Optional): Provide specific instructions for how you want your files renamed."></textarea>
+        </div>
+        
+        <!-- API Key input section -->
         <div class="input-group mb-3 mx-auto" style="max-width: 400px;">
             <input type="password" class="form-control" id="apiKeyInput" placeholder="Gemini API Key" aria-label="Gemini API Key">
             <button class="btn btn-outline-secondary" type="button" id="togglePassword">
@@ -80,6 +90,7 @@
         </div>
         <div id="apiKeyFeedback" class="text-center mt-2"></div>
         <a id="getApiKeyLink" class="icon-link" href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer">Get Your Gemini API Key</a>
+        
     </div>
     <div id="tablePage" class="container" style="display: none;">
                 <div class="button-row row align-items-center">

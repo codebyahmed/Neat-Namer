@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
             clearFiles: document.getElementById('clearFilesBtn'),
             renameFiles: document.getElementById('renameFilesBtn'),
             saveFiles: document.getElementById('saveFilesBtn'),
-            verifyApiKey: document.getElementById('button-addon2') // Verify API key button
+            verifyApiKey: document.getElementById('button-addon2')
         },
         filesTableBody: document.getElementById('filesTableBody'),
         oldNameHeader: document.getElementById('oldNameHeader'),
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         togglePassword: document.getElementById('togglePassword'),
         apiKeyInput: document.getElementById('apiKeyInput'),
         apiKeyFeedback: document.getElementById('apiKeyFeedback'),
-        getApiKeyLink: document.getElementById('getApiKeyLink') // Add this line
+        getApiKeyLink: document.getElementById('getApiKeyLink')
     };
     
     // Create progress elements
@@ -183,6 +183,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (selectedFiles.length === 0) return;
         
         if (switchToTableView) {
+            // Save the custom instructions when transitioning to table view
+            const customInstructions = document.getElementById('customInstructions')?.value || '';
+            sessionStorage.setItem('customInstructions', customInstructions);
+            
             elements.homePage.style.display = 'none';
             elements.tablePage.style.display = 'block';
         }
@@ -282,6 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
+            // Get custom instructions if provided
+            const customInstructions = document.getElementById('customInstructions')?.value || '';
+            
             // Continue with existing rename logic
             showProgress('Renaming files...', 0);
             enableButtons(false);
@@ -298,7 +305,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (!modeResponse.ok) throw new Error('Failed to set mode');
                 
-                const startResponse = await fetch('/start_rename', { method: 'POST' });
+                const startResponse = await fetch('/start_rename', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ custom_instructions: customInstructions })
+                });
                 
                 if (startResponse.ok) {
                     pollRenameProgress();

@@ -19,11 +19,9 @@ app = Flask(__name__)
 # Configuration
 TEMP_FILES_DIR = "tmp"
 
-# Get the appropriate user data directory for this application
+# User data directory for persistent storage
 USER_DATA_DIR = appdirs.user_data_dir("neatnamer", "AhmedIqbal")
-# Ensure the directory exists
 os.makedirs(USER_DATA_DIR, exist_ok=True)
-# Store the API key database in the user data directory
 API_KEY_DB = os.path.join(USER_DATA_DIR, "neatnamer_key")
 
 app.config.update(
@@ -44,6 +42,7 @@ class RenameState:
         self.completed = False
         self.stop_requested = False
         self.api_key = None
+        self.custom_instructions = ""  # Store custom renaming instructions
 
     def reset_progress(self):
         self.in_progress = False
@@ -59,9 +58,13 @@ class RenameState:
         self.selected_files = []
         self.renamed_files = []
         self.completed = False
+        # Keep custom instructions until explicitly changed
 
     def set_api_key(self, key):
         self.api_key = key
+        
+    def set_custom_instructions(self, instructions):
+        self.custom_instructions = instructions
 
 
 # Initialize state
@@ -118,6 +121,11 @@ def start_rename():
     # Check if API key is valid before proceeding
     if not state.api_key:
         return jsonify({"error": "No valid API key. Please verify your API key first."}), 400
+    
+    # Get custom instructions if provided
+    data = request.json or {}
+    custom_instructions = data.get("custom_instructions", "")
+    state.set_custom_instructions(custom_instructions)
 
     state.reset_progress()
     state.in_progress = True
@@ -144,11 +152,18 @@ def process_rename_files():
             file_extension = file.split(".")[-1]
             file_name = file.split(".")[0]
 
-            # Generate new name based on mode
+            # Generate new name based on mode and include custom instructions
             if state.mode == "image":
-                new_name = generate_new_name_from_image(file_path, file_name)
+                new_name = generate_new_name_from_image(
+                    file_path, 
+                    file_name, 
+                    custom_instructions=state.custom_instructions
+                )
             else:  # Default to text mode
-                new_name = generate_new_name_from_text(file_name)
+                new_name = generate_new_name_from_text(
+                    file_name,
+                    custom_instructions=state.custom_instructions
+                )
 
             # Clean the new name
             new_name = clean_filename(new_name)
