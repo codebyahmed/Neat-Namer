@@ -7,6 +7,7 @@ charset-normalizer==3.3.2
 click==8.1.7
 distro==1.9.0
 Flask==3.0.3
+flaskwebgui==1.1.6
 google-ai-generativelanguage==0.6.10
 google-api-core==2.20.0
 google-api-python-client==2.147.0
@@ -28,6 +29,7 @@ MarkupSafe==2.1.5
 openai==1.48.0
 proto-plus==1.24.0
 protobuf==5.28.2
+psutil==6.1.1
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
 pydantic==2.9.2
