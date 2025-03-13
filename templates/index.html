@@ -36,6 +36,29 @@
         .table {
             margin-bottom: 0;
         }
+        .progress-container {
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .progress {
+            height: 10px;
+            margin-top: 8px;
+        }
+        /* Add animation for the spinner */
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+        .spinner-border {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 0.2em solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border .75s linear infinite;
+        }
     </style>
 </head>
 <body>

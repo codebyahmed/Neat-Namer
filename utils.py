@@ -33,7 +33,7 @@ SAFE = [
     ]    
 
 def generate_new_name_from_text(original_name: str) -> str:
-    """Generates a new name for a given file name using OpenAI.
+    """Generates a new name for a given file name using Gemini.
 
     Args:
         original_name (str): The old name of the file.
@@ -69,7 +69,10 @@ def generate_new_name_from_text(original_name: str) -> str:
         Your output should just be the new name. 
     """
     
-    while True:
+    max_retries = 3
+    retry_count = 0
+    
+    while retry_count < max_retries:
         try:
             model = genai.GenerativeModel("gemini-1.5-flash")        
             
@@ -78,45 +81,63 @@ def generate_new_name_from_text(original_name: str) -> str:
                 safety_settings=SAFE
             )
             new_name = response.text.strip()
-            break
+            return new_name
         except Exception as e:
-            print(f"Error generating new name: {e}")
-            print("Sleeping for 5 seconds")
-            time.sleep(5)
+            retry_count += 1
+            print(f"Error generating new name (attempt {retry_count}/{max_retries}): {e}")
+            if retry_count < max_retries:
+                sleep_time = 2 * retry_count  # Exponential backoff
+                print(f"Retrying in {sleep_time} seconds...")
+                time.sleep(sleep_time)
+            else:
+                print("Max retries reached, using fallback name")
+                return f"Renamed {original_name.split('_')[-1]}"
     
-    return new_name
+    return f"Renamed File {int(time.time())}"
 
 
 def generate_new_name_from_image(file_path: str, file_name: str) -> str:
+    """Generates a new name for an image file using Gemini.
     
-    myfile = genai.upload_file(file_path)
-    topic = "Daisy Duck"
-    example = """Example 1: Original name: 'pikaso_texttoimage_Big-Parade-Float-With-Thanksgiving-Feasts-And-Perf' -> New name: 'Big Parade Float With Thanksgiving Feasts'
-                 Example 2: Original name: 'pikaso_edit_A-Cartoon-Dragon-Playing-The-Piano-In-A-Beautiful-' -> New name: 'Cartoon Dragon Playing Piano Beautifully'"""
-    
-    prompt = f"""
-    You are provided with an image and its old name. Your task is to generate a new name for the image.
-    The image is of a '{topic}' so ensure that every name starts with it.
-
-    Old Name: {file_name}
-    
-    Instructions:
-        1) Make sure to look at the image and understand what it is about.
-        2) Make sure to look at the old name and understand what the image is about.
-        3) The new name should be descriptive and should explain the image well.
-        4) It should be in title case.
-        5) It should not have any dashes or underscores or special characters, and should be in title case and have alphabetical characters only.
-        6) It should be grammatically correct.
-        7) It shuold not be the same as the old name.
-
-    Use these examples for reference:
-        {example} 
-
-    Output:
-        Your output should just be the new name. Ensure that you do not return the old name as the new name.
+    Args:
+        file_path (str): Path to the image file
+        file_name (str): Original name of the file
+        
+    Returns:
+        str: New name for the file
     """
-    while True:
+    max_retries = 3
+    retry_count = 0
+    
+    while retry_count < max_retries:
         try:
+            myfile = genai.upload_file(file_path)
+            topic = "Daisy Duck"
+            example = """Example 1: Original name: 'pikaso_texttoimage_Big-Parade-Float-With-Thanksgiving-Feasts-And-Perf' -> New name: 'Big Parade Float With Thanksgiving Feasts'
+                         Example 2: Original name: 'pikaso_edit_A-Cartoon-Dragon-Playing-The-Piano-In-A-Beautiful-' -> New name: 'Cartoon Dragon Playing Piano Beautifully'"""
+            
+            prompt = f"""
+            You are provided with an image and its old name. Your task is to generate a new name for the image.
+            The image is of a '{topic}' so ensure that every name starts with it.
+        
+            Old Name: {file_name}
+            
+            Instructions:
+                1) Make sure to look at the image and understand what it is about.
+                2) Make sure to look at the old name and understand what the image is about.
+                3) The new name should be descriptive and should explain the image well.
+                4) It should be in title case.
+                5) It should not have any dashes or underscores or special characters, and should be in title case and have alphabetical characters only.
+                6) It should be grammatically correct.
+                7) It shuold not be the same as the old name.
+        
+            Use these examples for reference:
+                {example} 
+        
+            Output:
+                Your output should just be the new name. Ensure that you do not return the old name as the new name.
+            """
+            
             model = genai.GenerativeModel("gemini-1.5-flash")
             result = model.generate_content(
                 [myfile, "\n\n", prompt],
@@ -124,15 +145,20 @@ def generate_new_name_from_image(file_path: str, file_name: str) -> str:
             )
             
             new_name = result.text
-            break;
+            return new_name
         
         except Exception as e:
-            print(f"Error generating new name: {e}")
-            print("Sleeping for 5 seconds")
-            time.sleep(5)
-        
-    return new_name
- 
+            retry_count += 1
+            print(f"Error generating name from image (attempt {retry_count}/{max_retries}): {e}")
+            if retry_count < max_retries:
+                sleep_time = 2 * retry_count  # Exponential backoff
+                print(f"Retrying in {sleep_time} seconds...")
+                time.sleep(sleep_time)
+            else:
+                print("Max retries reached, using fallback name")
+                return f"Image {int(time.time())}"
+    
+    return f"Image {int(time.time())}"
 
 def zip_up(renamed_files: list, zip_path: str) -> str:
     """Zips up the selected files into a zip file, handling duplicates.
