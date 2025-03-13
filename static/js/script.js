@@ -16,7 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         filesTableBody: document.getElementById('filesTableBody'),
         oldNameHeader: document.getElementById('oldNameHeader'),
-        newNameHeader: document.getElementById('newNameHeader')
+        newNameHeader: document.getElementById('newNameHeader'),
+        imageMode: document.getElementById('imageMode') // Add reference to checkbox
     };
     
     // Create progress elements
@@ -157,6 +158,17 @@ document.addEventListener('DOMContentLoaded', () => {
         enableButtons(false);
         
         try {
+            const mode = elements.imageMode.checked ? 'image' : 'text';
+            const modeResponse = await fetch('/set_mode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ mode })
+            });
+            
+            if (!modeResponse.ok) throw new Error('Failed to set mode');
+            
             const startResponse = await fetch('/start_rename', { method: 'POST' });
             if (!startResponse.ok) throw new Error('Failed to start renaming process');
             

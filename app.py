@@ -24,7 +24,7 @@ class RenameState:
     def __init__(self):
         self.selected_files = []
         self.renamed_files = []
-        self.mode = "image"
+        self.mode = "text"  # Default mode
         self.in_progress = False
         self.current = 0
         self.total = 0
