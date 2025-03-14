@@ -1,8 +1,13 @@
 # Neatnamer
 
-A smart file renaming tool that uses AI to transform messy and inconsistent filenames into clean, organized, and meaningful names. Neat-Namer helps you maintain a tidy file system with minimal effort.
-
 ![Neat Namer](static/img/home-image.png)
+
+## Description
+A smart file renaming tool that uses Gemini AI to transform messy and inconsistent filenames into clean, organized, and meaningful names. Neat-Namer helps you maintain a tidy file system with minimal effort.
+
+## Demo Video
+Check out the demo video on YouTube:
+[Neatnamer Demo](https://youtu.be/LJvUQebByoI)
 
 ## Features
 
